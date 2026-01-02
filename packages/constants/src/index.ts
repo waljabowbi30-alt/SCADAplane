@@ -25,6 +25,7 @@ export * from "./payment";
 export * from "./profile";
 export * from "./project";
 export * from "./rich-filters";
+export * from "./scada-templates";
 export * from "./settings";
 export * from "./sidebar";
 export * from "./spreadsheet";

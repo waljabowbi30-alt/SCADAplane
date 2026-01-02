@@ -14,13 +14,14 @@ import { CoverImage } from "@/components/common/cover-image";
 import { ImagePickerPopover } from "@/components/core/image-picker-popover";
 // plane web imports
 import { ProjectTemplateSelect } from "@/plane-web/components/projects/create/template-select";
+import { IProjectTemplate } from "@plane/constants";
 
 type Props = {
   handleClose: () => void;
   isMobile?: boolean;
   handleFormOnChange?: () => void;
   isClosable?: boolean;
-  handleTemplateSelect?: () => void;
+  handleTemplateSelect?: (template: IProjectTemplate) => void;
   showActionButtons?: boolean;
 };
 
@@ -34,6 +35,18 @@ function ProjectCreateHeader(props: Props) {
     showActionButtons = true,
   } = props;
   const { watch, control, setValue } = useFormContext<IProject>();
+
+  const onTemplateSelect = (template: IProjectTemplate) => {
+    setValue("name", template.name, { shouldDirty: true, shouldValidate: true });
+    setValue("identifier", template.identifier + "-" + Math.floor(1000 + Math.random() * 9000), {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    setValue("description", template.description, { shouldDirty: true, shouldValidate: true });
+
+    if (handleFormOnChange) handleFormOnChange();
+    if (handleTemplateSelect) handleTemplateSelect(template);
+  };
   const { t } = useTranslation();
   // derived values
   const coverImage = watch("cover_image_url");
@@ -50,7 +63,7 @@ function ProjectCreateHeader(props: Props) {
       />
       {showActionButtons && (
         <div className="absolute left-2.5 top-2.5">
-          <ProjectTemplateSelect onClick={handleTemplateSelect} />
+          <ProjectTemplateSelect onSelect={onTemplateSelect} />
         </div>
       )}
       {isClosable && (

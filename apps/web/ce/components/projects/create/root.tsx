@@ -2,6 +2,7 @@ import { useState } from "react";
 import { observer } from "mobx-react";
 import { FormProvider, useForm } from "react-hook-form";
 // plane imports
+import { IProjectTemplate } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import { EFileAssetType } from "@plane/types";
@@ -11,6 +12,7 @@ import ProjectCreateHeader from "@/components/project/create/header";
 import ProjectCreateButtons from "@/components/project/create/project-create-buttons";
 // hooks
 import { getCoverImageType, uploadCoverImage } from "@/helpers/cover-image.helper";
+import { applyTemplate } from "@/helpers/project-template.helper";
 import { useProject } from "@/hooks/store/use-project";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // plane web types
@@ -35,6 +37,8 @@ export const CreateProjectForm = observer(function CreateProjectForm(props: TCre
   const { addProjectToFavorites, createProject, updateProject } = useProject();
   // states
   const [shouldAutoSyncIdentifier, setShouldAutoSyncIdentifier] = useState(true);
+  const [selectedTemplate, setSelectedTemplate] = useState<IProjectTemplate | null>(null);
+
   // form info
   const methods = useForm<TProject>({
     defaultValues: { ...getProjectFormValues(), ...data },
@@ -101,6 +105,10 @@ export const CreateProjectForm = observer(function CreateProjectForm(props: TCre
           message: t("project_created_successfully"),
         });
 
+        if (selectedTemplate) {
+          await applyTemplate(workspaceSlug.toString(), res.id, selectedTemplate);
+        }
+
         if (setToFavorite) {
           handleAddToFavorites(res.id);
         }
@@ -159,7 +167,11 @@ export const CreateProjectForm = observer(function CreateProjectForm(props: TCre
 
   return (
     <FormProvider {...methods}>
-      <ProjectCreateHeader handleClose={handleClose} isMobile={isMobile} />
+      <ProjectCreateHeader
+        handleClose={handleClose}
+        isMobile={isMobile}
+        handleTemplateSelect={(template: IProjectTemplate) => setSelectedTemplate(template)}
+      />
 
       <form onSubmit={handleSubmit(onSubmit)} className="px-3">
         <div className="mt-9 space-y-6 pb-5">
